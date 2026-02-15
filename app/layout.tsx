@@ -11,6 +11,9 @@ const lexend = Lexend({
 export const metadata: Metadata = {
   title: "RDMS | International Islamic University Islamabad",
   description: "Research Document Management System for International Islamic University Islamabad (IIUI)",
+  icons: {
+    icon: "/images/IIUI_Logo.png",
+  },
 };
 
 export default function RootLayout({
