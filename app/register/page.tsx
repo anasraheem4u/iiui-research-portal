@@ -5,13 +5,14 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { GraduationCap, Mail, Lock, User, CheckCircle2, ArrowRight, Sparkles, BookOpen, FileCheck2, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Footer } from "@/components/Footer"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 
-type Program = { id: string, name: string, type: string }
+type Program = { id: string, name: string, type: string, department?: string }
 type Batch = { id: string, name: string }
 
 export default function RegisterPage() {
@@ -28,7 +29,9 @@ export default function RegisterPage() {
     const [regNo, setRegNo] = useState("")
     const [programId, setProgramId] = useState("")
     const [batchId, setBatchId] = useState("")
-    const [department, setDepartment] = useState("")
+    const [department, setDepartment] = useState("English")
+    const [session, setSession] = useState("")
+    const [sessionYear, setSessionYear] = useState("")
 
     // Data State
     const [programs, setPrograms] = useState<Program[]>([])
@@ -42,7 +45,7 @@ export default function RegisterPage() {
             setFetchingData(true)
             setError(null)
 
-            const { data: pData, error: pError } = await supabase.from('programs').select('id, name, type')
+            const { data: pData, error: pError } = await supabase.from('programs').select('id, name, type, department')
             const { data: bData, error: bError } = await supabase.from('batches').select('id, name')
             const { data: cData, error: cError } = await supabase.rpc('get_coordinators')
 
@@ -60,6 +63,45 @@ export default function RegisterPage() {
         }
         fetchData()
     }, [supabase])
+
+    // Derived lists for dropdowns
+    // Extract unique departments from Programs (although we expect only English as per previous instruction, this makes it dynamic)
+    // If 'department' column exists in programs table. If not, we might need to stick to hardcoded or fetch from elsewhere.
+    // Assuming 'department' is a column in programs or we filter programs that are 'English' based.
+    // For now, let's stick to the user request "fetch from database".
+
+    // Extract unique departments
+    const availableDepartments = Array.from(new Set(programs.map(p => p.department).filter(Boolean)))
+
+    // Extract Sessions and Years from Batches
+    // Assumes batch name format like "Spring 2026", "Summer 2025"
+    const availableSessions = Array.from(new Set(batches.map(b => b.name.split(' ')[0]))).filter(s => s)
+    const availableYears = Array.from(new Set(batches.map(b => {
+        const parts = b.name.split(' ')
+        return parts.length > 1 ? parts[1] : null
+    }))).filter(y => y && parseInt(y) >= 2020 && parseInt(y) <= 2030).sort()
+
+    // Default to hardcoded year range if no batches found or strictly 2020-2030 as requested
+    const yearsRange = Array.from({ length: 11 }, (_, i) => (2020 + i).toString())
+
+    // Update batchId based on Session and Year selection
+    useEffect(() => {
+        if (session && sessionYear) {
+            // Find batch that matches Session and Year (e.g., "Spring 2024")
+            // Case insensitive check for session, standard check for year
+            const match = batches.find(b =>
+                b.name.toLowerCase().includes(session.toLowerCase()) &&
+                b.name.includes(sessionYear)
+            )
+            if (match) {
+                setBatchId(match.id)
+            } else {
+                setBatchId("") // Reset if no match found
+            }
+        } else {
+            setBatchId("")
+        }
+    }, [session, sessionYear, batches])
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -272,38 +314,71 @@ export default function RegisterPage() {
                                                 <SelectValue placeholder={fetchingData ? "Loading..." : programs.length === 0 ? "No Programs" : "Select Program"} />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {programs.map(p => (
-                                                    <SelectItem key={p.id} value={p.id}>{p.name} ({p.type})</SelectItem>
-                                                ))}
+                                                {programs
+                                                    .filter(p => p.name.includes("English")) // Only show English programs
+                                                    .map(p => (
+                                                        <SelectItem key={p.id} value={p.id}>{p.name} ({p.type})</SelectItem>
+                                                    ))}
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-semibold text-slate-700">Batch</label>
-                                        <Select value={batchId} onValueChange={setBatchId}>
-                                            <SelectTrigger
-                                                disabled={fetchingData || batches.length === 0}
-                                                className="py-6 rounded-xl border-slate-200 bg-white hover:border-blue-300 transition-all"
-                                            >
-                                                <SelectValue placeholder={fetchingData ? "Loading..." : batches.length === 0 ? "No Batches" : "Select Batch"} />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {batches.map(b => (
-                                                    <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
+
+                                    {/* Split Batch into Session and Year */}
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-semibold text-slate-700">Batch Session</label>
+                                            <Select value={session} onValueChange={setSession}>
+                                                <SelectTrigger className="py-6 rounded-xl border-slate-200 bg-white hover:border-blue-300 transition-all">
+                                                    <SelectValue placeholder="Session" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {availableSessions.length > 0 ? availableSessions.map(s => (
+                                                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                                                    )) : (
+                                                        <>
+                                                            <SelectItem value="Spring">Spring</SelectItem>
+                                                            <SelectItem value="Summer">Summer</SelectItem>
+                                                        </>
+                                                    )}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-semibold text-slate-700">Year</label>
+                                            <Select value={sessionYear} onValueChange={setSessionYear}>
+                                                <SelectTrigger className="py-6 rounded-xl border-slate-200 bg-white hover:border-blue-300 transition-all">
+                                                    <SelectValue placeholder="Year" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {yearsRange.map(year => (
+                                                        <SelectItem key={year} value={year}>{year}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
                                     </div>
+
+                                    {/* Warning if Batch not found */}
+                                    {session && sessionYear && !batchId && (
+                                        <p className="text-xs text-red-500 col-span-2">
+                                            Batch "{session} {sessionYear}" not found in system.
+                                        </p>
+                                    )}
                                 </div>
 
                                 <FormField label="Department">
-                                    <Input
-                                        placeholder="e.g. Computer Science"
-                                        className="pl-4 py-6 bg-transparent border-none shadow-none focus-visible:ring-0 text-sm"
-                                        value={department}
-                                        onChange={e => setDepartment(e.target.value)}
-                                        required
-                                    />
+                                    <Select value={department} onValueChange={setDepartment}>
+                                        <SelectTrigger className="py-6 rounded-xl border-slate-200 bg-white hover:border-blue-300 transition-all">
+                                            <SelectValue placeholder={fetchingData ? "Loading..." : "Select Department"} />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {availableDepartments.length > 0 ? availableDepartments.map(d => (
+                                                <SelectItem key={d} value={d!}>{d}</SelectItem>
+                                            )) : (
+                                                <SelectItem value="English">English</SelectItem>
+                                            )}
+                                        </SelectContent>
+                                    </Select>
                                 </FormField>
 
                                 <div className="space-y-2">
@@ -367,8 +442,11 @@ export default function RegisterPage() {
                         </Link>
                     </p>
                 </div>
-            </div>
-        </div>
+                <div className="absolute bottom-0 w-full">
+                    <Footer />
+                </div>
+            </div >
+        </div >
     )
 }
 

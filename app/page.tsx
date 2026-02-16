@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Footer } from "@/components/Footer";
 import {
   ArrowRight, CloudUpload, BarChart3, ShieldCheck,
   Database, Eye, FileText, MapPin, Phone, Mail, ChevronRight, BookOpen, Users, Award, GraduationCap
@@ -283,13 +284,7 @@ export default function Home() {
           </div>
 
           <div className="pt-8 border-t border-emerald-50 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-xs text-slate-400">
-              © {new Date().getFullYear()} International Islamic University Islamabad. Research Document Management System. All Rights Reserved.
-            </p>
-            <div className="flex gap-6 text-xs font-medium text-slate-400">
-              <a className="hover:text-emerald-700 transition-colors" href="#">Privacy Policy</a>
-              <a className="hover:text-emerald-700 transition-colors" href="#">Terms of Service</a>
-            </div>
+            <Footer />
           </div>
         </div>
       </footer>

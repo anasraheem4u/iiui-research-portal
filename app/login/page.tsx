@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { GraduationCap, Lock, Mail, Eye, EyeOff, User, Sparkles, ArrowRight, BookOpen, Shield } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Footer } from "@/components/Footer"
 import { Input } from "@/components/ui/input"
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
@@ -289,6 +290,10 @@ export default function LoginPage() {
                             </Link>
                         </p>
                     </div>
+                </div>
+
+                <div className="absolute bottom-0 w-full">
+                    <Footer />
                 </div>
             </div>
         </div>

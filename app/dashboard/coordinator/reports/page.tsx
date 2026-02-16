@@ -4,6 +4,7 @@ import { FileDown, Printer, Users, FileText, CheckCircle2, XCircle, Clock, Gradu
 import { createClient } from "@/lib/supabase/server"
 import { Badge } from "@/components/ui/badge"
 import { AdvancedReportGenerator } from "@/components/AdvancedReportGenerator"
+import { Footer } from "@/components/Footer"
 
 
 export default async function ReportsPage() {
@@ -74,9 +75,9 @@ export default async function ReportsPage() {
     }) || []
 
     return (
-        <div className="h-full overflow-y-auto space-y-8 p-8 md:p-10 pb-24 bg-slate-50/50 w-full relative">
+        <div className="h-full overflow-y-auto space-y-6 md:space-y-8 p-4 md:p-10 pb-24 bg-slate-50/50 w-full relative">
             {/* Header Section */}
-            <div className="relative overflow-hidden rounded-[2.5rem] bg-slate-900 shadow-2xl ring-1 ring-white/10 p-10 md:p-12 mb-10">
+            <div className="relative overflow-hidden rounded-[2rem] bg-slate-900 shadow-2xl ring-1 ring-white/10 p-6 md:p-8 mb-6 md:mb-8">
                 <div className="absolute top-0 right-0 -mt-16 -mr-16 h-64 w-64 rounded-full bg-emerald-500/20 blur-3xl"></div>
                 <div className="absolute bottom-0 left-0 -mb-16 -ml-16 h-64 w-64 rounded-full bg-blue-500/20 blur-3xl"></div>
 
@@ -86,10 +87,10 @@ export default async function ReportsPage() {
                             <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
                             <span className="tracking-widest uppercase text-xs">System Analytics</span>
                         </div>
-                        <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white leading-tight">
+                        <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white leading-tight">
                             Reports & <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-200">Insights</span>
                         </h1>
-                        <p className="text-slate-400 text-lg max-w-xl font-light">
+                        <p className="text-slate-400 text-base max-w-xl font-light">
                             Generate comprehensive performance reports and track student progress across all programs.
                         </p>
                     </div>
@@ -105,7 +106,7 @@ export default async function ReportsPage() {
             </div>
 
             {/* Stats Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-6">
                 {[
                     { label: "Total Students", value: totalStudents, icon: Users, color: "text-emerald-600", bg: "bg-emerald-50", ring: "ring-emerald-100" },
                     { label: "Total Documents", value: totalDocs, icon: FileText, color: "text-blue-600", bg: "bg-blue-50", ring: "ring-blue-100" },
@@ -113,15 +114,15 @@ export default async function ReportsPage() {
                     { label: "Approved", value: approvedDocs, icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50", ring: "ring-emerald-100" },
                     { label: "Rejected", value: rejectedDocs, icon: XCircle, color: "text-rose-600", bg: "bg-rose-50", ring: "ring-rose-100" },
                 ].map((stat, i) => (
-                    <div key={i} className="group relative overflow-hidden rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-slate-900/5 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                    <div key={i} className="group relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] bg-white p-4 md:p-6 shadow-sm ring-1 ring-slate-900/5 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 last:col-span-2 md:last:col-span-1 lg:last:col-span-1">
                         <div className={`absolute top-0 right-0 h-24 w-24 -mr-6 -mt-6 rounded-full opacity-20 group-hover:scale-150 transition-transform duration-700 ${stat.bg}`}></div>
                         <div className="relative flex flex-col justify-between h-full">
-                            <div className={`h-12 w-12 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center mb-4 shadow-inner ring-1 ${stat.ring}`}>
-                                <stat.icon className="h-6 w-6" />
+                            <div className={`h-10 w-10 md:h-12 md:w-12 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center mb-3 md:mb-4 shadow-inner ring-1 ${stat.ring}`}>
+                                <stat.icon className="h-5 w-5 md:h-6 md:w-6" />
                             </div>
                             <div>
-                                <h3 className="text-3xl font-bold text-slate-900 tracking-tight">{stat.value}</h3>
-                                <p className="text-sm font-medium text-slate-500 mt-1">{stat.label}</p>
+                                <h3 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">{stat.value}</h3>
+                                <p className="text-xs md:text-sm font-medium text-slate-500 mt-1">{stat.label}</p>
                             </div>
                         </div>
                     </div>
@@ -254,7 +255,7 @@ export default async function ReportsPage() {
                     </div>
                 </CardHeader>
                 <CardContent className="p-0">
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto hidden md:block">
                         <table className="w-full text-sm text-left">
                             <thead>
                                 <tr className="bg-slate-50 border-b border-slate-100 text-xs font-bold uppercase tracking-wider text-slate-500">
@@ -327,8 +328,72 @@ export default async function ReportsPage() {
                             </tbody>
                         </table>
                     </div>
+
+                    {/* Mobile Card View for Student Progress */}
+                    <div className="md:hidden flex flex-col divide-y divide-slate-100">
+                        {students && students.length > 0 ? (
+                            students.map(student => {
+                                const counts = studentDocMap.get(student.id) || { total: 0, approved: 0, pending: 0, rejected: 0 }
+                                const programName = (student.programs as any)?.name || 'N/A'
+                                const requiredCount = student.program_id === '11111111-1111-1111-1111-111111111111' ? msChecklistIds.size : phdChecklistIds.size
+                                const isComplete = counts.approved >= requiredCount && requiredCount > 0
+
+                                return (
+                                    <div key={student.id} className="p-4 bg-white space-y-4">
+                                        <div className="flex justify-between items-start">
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center text-teal-700 font-bold text-xs ring-2 ring-white shadow-sm">
+                                                    {student.full_name?.split(' ').map((n: any) => n[0]).join('').substring(0, 2)}
+                                                </div>
+                                                <div>
+                                                    <div className="font-bold text-slate-900">{student.full_name}</div>
+                                                    <div className="text-[11px] text-slate-400 font-mono tracking-tight">{student.registration_number}</div>
+                                                </div>
+                                            </div>
+                                            <Badge variant="secondary" className="bg-slate-100 text-slate-600 font-medium border-slate-200 text-[10px]">{programName}</Badge>
+                                        </div>
+
+                                        <div className="grid grid-cols-4 gap-2 text-center text-xs">
+                                            <div className="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                                <div className="font-bold text-slate-700">{counts.total}</div>
+                                                <div className="text-[10px] text-slate-400 uppercase">Sub</div>
+                                            </div>
+                                            <div className="bg-emerald-50 p-2 rounded-lg border border-emerald-100">
+                                                <div className="font-bold text-emerald-700">{counts.approved}</div>
+                                                <div className="text-[10px] text-emerald-400 uppercase">Appr</div>
+                                            </div>
+                                            <div className="bg-amber-50 p-2 rounded-lg border border-amber-100">
+                                                <div className="font-bold text-amber-700">{counts.pending}</div>
+                                                <div className="text-[10px] text-amber-400 uppercase">Pend</div>
+                                            </div>
+                                            <div className="bg-rose-50 p-2 rounded-lg border border-rose-100">
+                                                <div className="font-bold text-rose-700">{counts.rejected}</div>
+                                                <div className="text-[10px] text-rose-400 uppercase">Rej</div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center justify-between pt-2 border-t border-slate-50">
+                                            <span className="text-xs font-medium text-slate-500">Overall Status</span>
+                                            {isComplete
+                                                ? <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold shadow-sm border border-emerald-200"><CheckCircle2 className="w-3.5 h-3.5" /> COMPLETE</div>
+                                                : counts.total > 0
+                                                    ? <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold shadow-sm border border-amber-200"><Clock className="w-3.5 h-3.5" /> IN PROGRESS</div>
+                                                    : <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-500 text-xs font-bold border border-slate-200">NOT STARTED</div>
+                                            }
+                                        </div>
+                                    </div>
+                                )
+                            })
+                        ) : (
+                            <div className="p-8 text-center text-slate-400">
+                                <p>No students found.</p>
+                            </div>
+                        )}
+                    </div>
+
                 </CardContent>
             </Card>
-        </div>
+            <Footer />
+        </div >
     )
 }

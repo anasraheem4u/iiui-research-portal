@@ -7,6 +7,9 @@ import { Eye, FileText, User, ArrowUpDown, MessageCircle, CheckCircle2, ArrowRig
 import Link from "next/link"
 import { QuickViewModal } from "@/components/QuickViewModal"
 import { ChatDialog } from "@/components/ChatDialog"
+import { deleteUser } from "@/app/actions/user_admin"
+import { toast } from "sonner"
+import { Trash2 } from "lucide-react"
 
 export type Student = {
     id: string
@@ -159,6 +162,25 @@ export const columns: ColumnDef<Student>[] = [
                             <ArrowRight className="w-4 h-4" />
                         </Button>
                     </Link>
+
+                    {/* 🗑 Delete User */}
+                    <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-8 w-8 p-0 rounded-full text-slate-400 hover:bg-red-50 hover:text-red-600 hover:scale-110 transition-all"
+                        onClick={async () => {
+                            if (confirm(`Are you sure you want to delete ${student.name}? This action cannot be undone.`)) {
+                                const result = await deleteUser(student.id)
+                                if (result.success) {
+                                    toast.success("User deleted successfully")
+                                } else {
+                                    toast.error(result.error || "Failed to delete user")
+                                }
+                            }
+                        }}
+                    >
+                        <Trash2 className="w-4 h-4" />
+                    </Button>
                 </div>
             )
         }

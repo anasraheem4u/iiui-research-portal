@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Card } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Footer } from '@/components/Footer'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
@@ -149,11 +150,11 @@ export default async function StudentDashboard() {
     }
 
     return (
-        <div className="flex-1 p-8 overflow-y-auto bg-slate-50/50 min-h-screen">
+        <div className="flex-1 p-4 md:p-8 overflow-y-auto bg-slate-50/50 min-h-screen">
             <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
 
                 {/* Header Section */}
-                <div className="relative overflow-hidden rounded-[2.5rem] bg-slate-900 shadow-2xl ring-1 ring-white/10 p-10 md:p-12 mb-10 group">
+                <div className="relative overflow-hidden rounded-[2rem] md:rounded-[2.5rem] bg-slate-900 shadow-2xl ring-1 ring-white/10 p-6 md:p-12 mb-6 md:mb-10 group">
                     <div className="absolute top-0 right-0 -mt-16 -mr-16 h-64 w-64 rounded-full bg-emerald-500/20 blur-3xl transition-transform duration-1000 group-hover:scale-110"></div>
                     <div className="absolute bottom-0 left-0 -mb-16 -ml-16 h-64 w-64 rounded-full bg-blue-500/20 blur-3xl"></div>
 
@@ -248,6 +249,18 @@ export default async function StudentDashboard() {
                             </div>
                         </div>
                     </div>
+
+                    {/* Mobile Stats (Grid) */}
+                    <div className="xl:hidden grid grid-cols-2 gap-4 mt-8 w-full">
+                        <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 flex flex-col items-center justify-center text-center">
+                            <span className="text-xs text-slate-300 uppercase tracking-widest font-bold mb-1">Overall Progress</span>
+                            <span className="text-3xl font-bold text-white">{progress}%</span>
+                        </div>
+                        <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 flex flex-col items-center justify-center text-center">
+                            <span className="text-xs text-slate-300 uppercase tracking-widest font-bold mb-1">Approved</span>
+                            <span className="text-3xl font-bold text-emerald-400">{approved} <span className="text-lg text-slate-400 font-normal">/ {totalItems}</span></span>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Dashboard Grid */}
@@ -270,7 +283,45 @@ export default async function StudentDashboard() {
                                 </div>
                             </div>
 
-                            <Card className="border-t-4 border-t-emerald-500 shadow-lg shadow-slate-200/50 rounded-2xl overflow-hidden ring-1 ring-slate-900/5">
+                            {/* Mobile Card View */}
+                            <div className="md:hidden space-y-4">
+                                {mergedDocs.map((doc, idx) => (
+                                    <Card key={idx} className={cn("p-5 rounded-2xl border border-slate-200/60 shadow-sm", doc.status === 'rejected' && "bg-red-50/30 border-red-100")}>
+                                        <div className="flex justify-between items-start mb-4">
+                                            <div className="flex items-center gap-3">
+                                                {getStatusIcon(doc.status)}
+                                                <div>
+                                                    <h3 className={cn("font-bold text-base text-slate-900 leading-tight", doc.status === 'approved' && "text-slate-800")}>{doc.title}</h3>
+                                                    <p className="text-xs text-slate-500 mt-1 line-clamp-1">{doc.description}</p>
+                                                </div>
+                                            </div>
+                                            {doc.status === 'approved' && <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-200 border-none px-2 py-0.5 text-[10px]">Approved</Badge>}
+                                            {doc.status === 'rejected' && <Badge className="bg-red-100 text-red-800 hover:bg-red-200 border-none px-2 py-0.5 text-[10px]">Rejected</Badge>}
+                                            {doc.status === 'pending' && <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-200 border-none px-2 py-0.5 text-[10px]">In Review</Badge>}
+                                            {doc.status === 'missing' && <Badge variant="outline" className="text-slate-400 border-slate-200 px-2 py-0.5 text-[10px]">Missing</Badge>}
+                                        </div>
+
+                                        <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                                            <span className="text-xs text-slate-400 font-mono">{doc.date !== '--' ? doc.date : 'Not submitted'}</span>
+
+                                            {doc.status === 'missing' ? (
+                                                <UploadModal documentTitle={doc.title} checklistId={doc.checklistId} />
+                                            ) : doc.status === 'rejected' ? (
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[10px] text-red-600 font-bold bg-red-50 px-2 py-1 rounded-lg border border-red-100 max-w-[100px] truncate">
+                                                        {doc.remark || 'Fix Required'}
+                                                    </span>
+                                                    <UploadModal documentTitle={doc.title} checklistId={doc.checklistId} existingDocId={doc.docId} />
+                                                </div>
+                                            ) : (
+                                                <span className="text-xs font-bold text-slate-400 italic">View Only</span>
+                                            )}
+                                        </div>
+                                    </Card>
+                                ))}
+                            </div>
+
+                            <Card className="hidden md:block border-t-4 border-t-emerald-500 shadow-lg shadow-slate-200/50 rounded-2xl overflow-hidden ring-1 ring-slate-900/5">
                                 <div className="overflow-x-auto">
                                     <Table className="min-w-[700px] lg:min-w-0">
                                         <TableHeader>
@@ -408,6 +459,7 @@ export default async function StudentDashboard() {
                     </div>
                 </div>
             </div>
+            <Footer />
         </div>
     )
 }

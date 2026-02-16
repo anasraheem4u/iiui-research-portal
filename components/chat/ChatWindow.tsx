@@ -79,7 +79,7 @@ export function ChatWindow({ messages, currentUserId, otherUserName, onSendMessa
 
     return (
         <div className="flex flex-col h-full bg-slate-50/50 rounded-3xl overflow-hidden border border-slate-100 shadow-inner">
-            <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 md:space-y-6 custom-scrollbar">
                 {messages.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full text-slate-400 space-y-4 animate-in fade-in zoom-in duration-500">
                         <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">

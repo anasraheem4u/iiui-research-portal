@@ -138,7 +138,7 @@ export function UploadModal({ documentTitle, checklistId, existingDocId, onUploa
                     <Upload className="w-3 h-3" /> {existingDocId ? 'Re-Upload' : 'Upload Now'}
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[480px]">
+            <DialogContent className="w-[95vw] sm:max-w-[480px] rounded-xl sm:rounded-lg">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <FileUp className="w-5 h-5 text-emerald-600" />

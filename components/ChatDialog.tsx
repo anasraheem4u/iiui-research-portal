@@ -142,7 +142,7 @@ export function ChatDialog({ currentUserId, otherUserId, otherUserName, trigger 
                     </Button>
                 )}
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] h-[600px] flex flex-col p-0 gap-0 overflow-hidden">
+            <DialogContent className="w-[95vw] sm:max-w-[425px] h-[85vh] sm:h-[600px] flex flex-col p-0 gap-0 overflow-hidden rounded-xl sm:rounded-lg">
                 <DialogHeader className="p-4 border-b bg-slate-50/50">
                     <DialogTitle className="flex items-center gap-2 text-base">
                         <div className="bg-emerald-100 p-1.5 rounded-full">

@@ -69,7 +69,8 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
                 </div>
                 <button
                     onClick={() => setIsOpen(!isOpen)}
-                    className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+                    className="p-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-colors active:scale-95 touch-manipulation"
+                    aria-label="Toggle Menu"
                 >
                     {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                 </button>

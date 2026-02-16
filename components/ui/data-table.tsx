@@ -36,12 +36,14 @@ interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
     meta?: any
+    mobileCard?: (row: any) => React.ReactNode
 }
 
 export function DataTable<TData, TValue>({
     columns,
     data,
     meta,
+    mobileCard,
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -61,14 +63,14 @@ export function DataTable<TData, TValue>({
         getFilteredRowModel: getFilteredRowModel(),
         globalFilterFn: (row, columnId, filterValue) => {
             const search = filterValue.toLowerCase();
-            // Custom global search logic: check specific columns or all string columns
-            // If filterValue contains status or program, checking it might be redundant if specific filters are used.
-            // But for general search name/email/regno is good.
-            // Default includesString is per column. "globalFilterFn" can be 'includesString'.
-            // Here we just let 'includesString' work on all columns if not specified, or row.original values.
-            return String(row.getValue("name")).toLowerCase().includes(search) ||
-                String(row.getValue("email")).toLowerCase().includes(search) ||
-                String(row.getValue("regNo")).toLowerCase().includes(search)
+            const original = row.original as any;
+
+            // Robust search across core fields
+            const nameMatch = original?.name ? String(original.name).toLowerCase().includes(search) : false;
+            const emailMatch = original?.email ? String(original.email).toLowerCase().includes(search) : false;
+            const regNoMatch = original?.regNo ? String(original.regNo).toLowerCase().includes(search) : false;
+
+            return nameMatch || emailMatch || regNoMatch;
         },
         state: {
             sorting,
@@ -136,9 +138,16 @@ export function DataTable<TData, TValue>({
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="all">All Programs</SelectItem>
-                                    <SelectItem value="MS Computer Science">MS Computer Science</SelectItem>
-                                    <SelectItem value="PhD Computer Science">PhD Computer Science</SelectItem>
-                                    {/* Add more if dynamic? But hardcoded for now or fetch unique values? */}
+                                    {/* Dynamically generated program options */}
+                                    {Array.from(new Set(data.map((item: any) => item.program)))
+                                        .filter(Boolean)
+                                        .sort()
+                                        .map((program: string) => (
+                                            <SelectItem key={program} value={program}>
+                                                {program}
+                                            </SelectItem>
+                                        ))
+                                    }
                                 </SelectContent>
                             </Select>
                         </div>
@@ -193,8 +202,8 @@ export function DataTable<TData, TValue>({
             </div>
 
 
-            {/* Table */}
-            <div className="rounded-2xl border border-slate-200/60 overflow-x-auto bg-white shadow-sm ring-4 ring-slate-50/50">
+            {/* Table (Desktop) */}
+            <div className="hidden md:block rounded-2xl border border-slate-200/60 overflow-x-auto bg-white shadow-sm ring-4 ring-slate-50/50">
                 <Table>
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
@@ -248,6 +257,24 @@ export function DataTable<TData, TValue>({
                     </TableBody>
                 </Table>
             </div>
+
+            {/* Mobile Card View */}
+            {mobileCard && (
+                <div className="md:hidden space-y-4">
+                    {table.getRowModel().rows?.length ? (
+                        table.getRowModel().rows.map((row) => (
+                            <div key={row.id}>
+                                {mobileCard(row)}
+                            </div>
+                        ))
+                    ) : (
+                        <div className="flex flex-col items-center justify-center gap-2 py-12 text-slate-500 bg-white rounded-2xl border border-slate-200/60">
+                            <Search className="w-8 h-8 text-slate-300" />
+                            <p>No items found.</p>
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* Pagination */}
             <div className="flex items-center justify-between py-2 px-1">

@@ -176,7 +176,7 @@ export function DocumentReviewModal({
                     </div>
                 )}
             </DialogTrigger>
-            <DialogContent className="max-w-[1050px] h-[90vh] p-0 overflow-hidden rounded-2xl gap-0" aria-describedby={undefined}>
+            <DialogContent className="w-[95vw] max-w-[1050px] h-[90vh] p-0 overflow-hidden rounded-xl sm:rounded-2xl gap-0 flex flex-col" aria-describedby={undefined}>
                 <DialogTitle className="sr-only">Reviewing: {documentTitle}</DialogTitle>
                 {/* Top Header Bar */}
                 <div className="flex items-center justify-between px-5 py-3 border-b bg-slate-50/80">
@@ -198,10 +198,10 @@ export function DocumentReviewModal({
                     </div>
                 </div>
 
-                {/* Main Body — Two Column Layout */}
-                <div className="flex flex-1 overflow-hidden" style={{ height: 'calc(90vh - 56px)' }}>
+                {/* Main Body — Responsive Layout */}
+                <div className="flex flex-col md:flex-row flex-1 overflow-hidden h-full">
                     {/* LEFT: PDF Viewer */}
-                    <div className="flex-1 flex flex-col bg-gray-100 border-r">
+                    <div className="flex-1 flex flex-col bg-gray-100 border-r md:border-r-0 md:border-b-0 border-b h-[50vh] md:h-auto">
                         {/* PDF Toolbar */}
                         <div className="flex items-center justify-between px-3 py-2 bg-white border-b text-sm">
                             <div className="flex items-center gap-2">
@@ -311,7 +311,7 @@ export function DocumentReviewModal({
                     </div>
 
                     {/* RIGHT: Sidebar — Submission Details + Actions */}
-                    <div className="w-[300px] flex flex-col bg-white overflow-y-auto">
+                    <div className="w-full md:w-[300px] flex flex-col bg-white overflow-y-auto flex-1 md:flex-none">
                         {/* Submission Details */}
                         <div className="p-5 border-b">
                             <h4 className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-3">
