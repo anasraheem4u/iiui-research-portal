@@ -136,11 +136,11 @@ export default async function ReportsPage() {
                     <CardHeader className="bg-slate-50/50 border-b border-slate-100 p-8">
                         <div className="flex items-center justify-between">
                             <div className="space-y-1">
-                                <CardTitle className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                                <CardTitle className="text-lg md:text-xl font-bold text-slate-900 flex items-center gap-2">
                                     <PieChart className="w-5 h-5 text-emerald-500" />
                                     Program Analytics
                                 </CardTitle>
-                                <p className="text-sm text-slate-500">Breakdown of students across programs</p>
+                                <p className="text-xs md:text-sm text-slate-500">Breakdown of students across programs</p>
                             </div>
                             <Button variant="ghost" size="sm" className="h-8 w-8 rounded-full p-0 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50">
                                 <ArrowUpRight className="w-4 h-4" />
@@ -188,11 +188,11 @@ export default async function ReportsPage() {
                     <CardHeader className="bg-slate-50/50 border-b border-slate-100 p-8">
                         <div className="flex items-center justify-between">
                             <div className="space-y-1">
-                                <CardTitle className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                                <CardTitle className="text-lg md:text-xl font-bold text-slate-900 flex items-center gap-2">
                                     <BarChart3 className="w-5 h-5 text-blue-500" />
                                     Submission Status
                                 </CardTitle>
-                                <p className="text-sm text-slate-500">Real-time status of research submissions</p>
+                                <p className="text-xs md:text-sm text-slate-500">Real-time status of research submissions</p>
                             </div>
                         </div>
                     </CardHeader>

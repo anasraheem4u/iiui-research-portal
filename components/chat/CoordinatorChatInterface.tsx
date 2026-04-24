@@ -321,7 +321,7 @@ export function CoordinatorChatInterface({ currentUserId }: { currentUserId: str
 
             {/* Right Profile Sidebar */}
             {selectedStudent && (
-                <div className="w-72 border-l border-slate-100 bg-white hidden 2xl:flex flex-col p-6">
+                <div className="w-80 border-l border-slate-100 bg-white hidden lg:flex flex-col p-6">
                     <div className="flex flex-col items-center text-center mb-8">
                         <div className="w-24 h-24 rounded-2xl bg-slate-100 mb-4 overflow-hidden border-4 border-white shadow-lg shadow-slate-200/50">
                             {/* Avatar */}
@@ -330,18 +330,17 @@ export function CoordinatorChatInterface({ currentUserId }: { currentUserId: str
                             </div>
                         </div>
                         <h3 className="font-bold text-lg text-slate-900">{selectedStudent.full_name}</h3>
-                        <p className="text-sm text-slate-500">PhD Scholar (CS)</p>
+                        <p className="text-sm text-slate-500">Student</p>
 
                         <div className="flex gap-2 mt-3">
-                            <span className="px-2 py-1 bg-blue-50 text-blue-700 text-[10px] font-bold uppercase tracking-wider rounded-md">Year 3</span>
-                            <span className="px-2 py-1 bg-purple-50 text-purple-700 text-[10px] font-bold uppercase tracking-wider rounded-md">Thesis</span>
+                            <span className="px-2 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-wider rounded-md">General</span>
                         </div>
                     </div>
 
                     <div className="space-y-6">
                         <div>
                             <div className="flex items-center justify-between mb-3">
-                                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Recent Documents</h4>
+                                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Info</h4>
                                 <button className="text-[10px] text-blue-600 font-semibold hover:underline">View All</button>
                             </div>
                             <div className="space-y-3">
@@ -365,13 +364,6 @@ export function CoordinatorChatInterface({ currentUserId }: { currentUserId: str
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        <div className="p-4 rounded-xl bg-blue-50/50 border border-blue-100">
-                            <h4 className="text-xs font-bold text-blue-800 mb-2">Coordinator's Note</h4>
-                            <p className="text-xs text-blue-600/80 italic leading-relaxed">
-                                "Check methodology section for proper validation techniques before next meeting."
-                            </p>
                         </div>
                     </div>
                 </div>

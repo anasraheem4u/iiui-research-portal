@@ -77,7 +77,17 @@ export const columns: ColumnDef<Student>[] = [
     {
         accessorKey: "batch",
         header: () => <span className="font-bold text-slate-700 text-xs uppercase tracking-wider">Batch</span>,
-        cell: ({ row }) => <span className="text-slate-600 text-sm font-medium">{row.original.batch}</span>
+        cell: ({ row }) => <span className="text-slate-600 text-sm font-medium">{row.original.batch}</span>,
+        filterFn: (row, id, filterValue) => {
+            if (!filterValue) return true;
+            const batchStr = String(row.getValue(id) || "");
+            const { session, year } = filterValue as { session: string, year: string };
+            
+            const matchesSession = session === "all" || batchStr.toLowerCase().includes(session.toLowerCase());
+            const matchesYear = year === "all" || batchStr.includes(year);
+            
+            return matchesSession && matchesYear;
+        }
     },
     {
         accessorKey: "status",

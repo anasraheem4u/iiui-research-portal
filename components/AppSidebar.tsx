@@ -63,7 +63,7 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
             <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-4 z-40 shadow-md">
                 <div className="flex items-center gap-3">
                     <div className="bg-white p-1 rounded-md shadow-sm">
-                        <Image src="/images/IIUI_Logo.png" alt="IIUI Logo" width={24} height={24} className="w-6 h-6 object-contain" />
+                        <Image src="/images/IIUI_Logo.png" alt="Department Logo" width={24} height={24} className="w-6 h-6 object-contain" />
                     </div>
                     <span className="font-bold text-white tracking-tight">RDMS</span>
                 </div>
@@ -92,11 +92,11 @@ export function AppSidebar({ role, user }: AppSidebarProps) {
                 <div className="h-20 flex items-center px-6 border-b border-slate-800/60 bg-slate-900/50 backdrop-blur-sm">
                     <div className="flex items-center gap-3">
                         <div className="bg-white p-1.5 rounded-lg shadow-lg shadow-emerald-500/20">
-                            <Image src="/images/IIUI_Logo.png" alt="IIUI Logo" width={32} height={32} className="w-8 h-8 object-contain" />
+                            <Image src="/images/IIUI_Logo.png" alt="Department Logo" width={32} height={32} className="w-8 h-8 object-contain" />
                         </div>
                         <div className="leading-tight">
                             <h1 className="font-bold text-white text-lg tracking-tight">RDMS</h1>
-                            <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">IIUI Portal</p>
+                            <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">English Portal</p>
                         </div>
                     </div>
                 </div>

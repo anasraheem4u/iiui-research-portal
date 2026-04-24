@@ -50,6 +50,8 @@ export function DataTable<TData, TValue>({
     const [globalFilter, setGlobalFilter] = React.useState("")
     const [programFilter, setProgramFilter] = React.useState<string>("all")
     const [statusFilter, setStatusFilter] = React.useState<string>("all")
+    const [sessionFilter, setSessionFilter] = React.useState<string>("all")
+    const [yearFilter, setYearFilter] = React.useState<string>("all")
 
     const table = useReactTable({
         data,
@@ -86,6 +88,13 @@ export function DataTable<TData, TValue>({
 
     const hasProgram = table.getAllColumns().some(c => c.id === 'program')
     const hasStatus = table.getAllColumns().some(c => c.id === 'status')
+    const hasBatch = table.getAllColumns().some(c => c.id === 'batch')
+
+    // Apply batch filter (Session and Year)
+    React.useEffect(() => {
+        if (!hasBatch) return
+        table.getColumn("batch")?.setFilterValue({ session: sessionFilter, year: yearFilter })
+    }, [sessionFilter, yearFilter, table, hasBatch])
 
     // Apply program filter
     React.useEffect(() => {
@@ -117,10 +126,10 @@ export function DataTable<TData, TValue>({
                         <Search className="h-4 w-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
                     </div>
                     <Input
-                        placeholder="Search students by name, email, or reg no..."
+                        placeholder="Search students..."
                         value={globalFilter ?? ""}
                         onChange={(event) => setGlobalFilter(event.target.value)}
-                        className="pl-10 h-11 bg-slate-50 border-slate-200 rounded-xl focus:bg-white focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-slate-700 placeholder:text-slate-400"
+                        className="pl-10 h-11 bg-slate-50 border-slate-200 rounded-xl focus:bg-white focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium text-slate-700 placeholder:text-slate-400 text-sm"
                     />
                 </div>
 
@@ -173,7 +182,49 @@ export function DataTable<TData, TValue>({
                         </div>
                     )}
 
-                    {(programFilter !== "all" || statusFilter !== "all" || globalFilter) && (
+                    {/* Session Filter */}
+                    {hasBatch && (
+                        <div className="w-full sm:w-auto min-w-[140px]">
+                            <Select value={sessionFilter} onValueChange={setSessionFilter}>
+                                <SelectTrigger className="h-10 rounded-xl bg-white border-slate-200 text-slate-700 focus:ring-emerald-500/20 hover:bg-slate-50 transition-colors">
+                                    <div className="flex items-center gap-2">
+                                        <Filter className="w-3.5 h-3.5 text-slate-400" />
+                                        <SelectValue placeholder="All Sessions" />
+                                    </div>
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Sessions</SelectItem>
+                                    <SelectItem value="Spring">Spring</SelectItem>
+                                    <SelectItem value="Fall">Fall</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    )}
+
+                    {/* Year Filter */}
+                    {hasBatch && (
+                        <div className="w-full sm:w-auto min-w-[140px]">
+                            <Select value={yearFilter} onValueChange={setYearFilter}>
+                                <SelectTrigger className="h-10 rounded-xl bg-white border-slate-200 text-slate-700 focus:ring-emerald-500/20 hover:bg-slate-50 transition-colors">
+                                    <div className="flex items-center gap-2">
+                                        <Filter className="w-3.5 h-3.5 text-slate-400" />
+                                        <SelectValue placeholder="All Years" />
+                                    </div>
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Years</SelectItem>
+                                    {Array.from(new Set(data.map((item: any) => {
+                                        const parts = typeof item.batch === 'string' ? item.batch.split(' ') : [];
+                                        return parts[1] || "";
+                                    }))).filter(Boolean).sort().map((year: any) => (
+                                        <SelectItem key={year} value={year}>{year}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    )}
+
+                    {(programFilter !== "all" || statusFilter !== "all" || sessionFilter !== "all" || yearFilter !== "all" || globalFilter) && (
                         <Button
                             variant="ghost"
                             size="sm"
@@ -181,6 +232,8 @@ export function DataTable<TData, TValue>({
                             onClick={() => {
                                 setProgramFilter("all")
                                 setStatusFilter("all")
+                                setSessionFilter("all")
+                                setYearFilter("all")
                                 setGlobalFilter("")
                             }}
                         >

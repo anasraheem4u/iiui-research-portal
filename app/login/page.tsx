@@ -52,21 +52,41 @@ export default function LoginPage() {
             // Try to get role from auth metadata first (always available)
             const metadataRole = user.user_metadata?.role as string | undefined
 
-            // Then try the users table as a secondary source
+            // Then try the users table as a secondary source (and to check approval status)
             let dbRole: string | undefined
+            let dbStatus: string | undefined
             try {
                 const { data: profile } = await supabase
                     .from('users')
-                    .select('role')
+                    .select('role, status')
                     .eq('id', user.id)
                     .single()
+                
                 dbRole = profile?.role
+                dbStatus = profile?.status
             } catch {
                 // Silently fall back — users table may not be accessible
             }
 
             // Priority: DB role > metadata role > selected role toggle
             const userRole = dbRole || metadataRole || role
+            
+            // Critical Access Control: Prevent unapproved students from entering
+            if (userRole === 'student' && dbStatus) {
+                if (dbStatus === 'pending') {
+                    await supabase.auth.signOut()
+                    toast.error("Your account is currently pending approval by your coordinator.")
+                    setLoading(false)
+                    return
+                }
+                if (dbStatus === 'rejected') {
+                    await supabase.auth.signOut()
+                    toast.error("Your account has been rejected by the coordinator.")
+                    setLoading(false)
+                    return
+                }
+            }
+
             toast.success(`Welcome back!`)
 
             // Admins create/view everything, effectively Coordinators+
@@ -85,7 +105,7 @@ export default function LoginPage() {
 
     const fillTestCreds = (type: 'student' | 'coordinator') => {
         setRole(type)
-        setEmail(type === 'student' ? 'student@iiu.edu.pk' : 'coordinator@iiu.edu.pk')
+        setEmail(type === 'student' ? 'student@english.edu' : 'coordinator@english.edu')
         setPassword('password123')
     }
 
@@ -120,7 +140,7 @@ export default function LoginPage() {
                         </span>
                     </h1>
                     <p className="text-lg text-emerald-100/60 max-w-sm font-light leading-relaxed">
-                        Streamlining academic research & collaboration at IIUI.
+                        Streamlining academic research & collaboration at the Department of English.
                     </p>
                 </div>
 
@@ -132,7 +152,7 @@ export default function LoginPage() {
                 </div>
 
                 <div className="relative z-10 text-xs text-white/30 font-medium animate-fade-in-up stagger-5" style={{ opacity: 0 }}>
-                    © 2026 IIUI. All Rights Reserved.
+                    © 2026 Department of English. All Rights Reserved.
                 </div>
             </div>
 
@@ -220,7 +240,7 @@ export default function LoginPage() {
                                 <Input
                                     id="email"
                                     type="email"
-                                    placeholder="name@iiu.edu.pk"
+                                    placeholder="name@english.edu"
                                     className="pl-11 py-6 bg-transparent border-none shadow-none focus-visible:ring-0 text-sm"
                                     required
                                     value={email}

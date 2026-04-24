@@ -34,6 +34,7 @@ async function getData() {
             batches ( name )
         `)
         .eq('role', 'student')
+        .eq('coordinator_id', user.id)
         .order('created_at', { ascending: false })
 
     if (error || !students) return { active: [], pending: [] }
@@ -71,8 +72,10 @@ async function getData() {
     const pathsToSign: { studentId: string, path: string }[] = []
 
     allDocs?.forEach(doc => {
-        if (!docMap.has(doc.student_id)) docMap.set(doc.student_id, new Set())
-        docMap.get(doc.student_id)?.add(doc.checklist_item_id)
+        if (doc.status === 'approved') {
+            if (!docMap.has(doc.student_id)) docMap.set(doc.student_id, new Set())
+            docMap.get(doc.student_id)?.add(doc.checklist_item_id)
+        }
 
         if (doc.status === 'pending' || doc.status === 'under_review') {
             pendingMap.set(doc.student_id, true)
@@ -200,63 +203,63 @@ export default async function CoordinatorDashboard() {
                 </div>
 
                 {/* Stats Grid - Glass Cards */}
-                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
-                    <div className="group relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] bg-white p-4 md:p-6 shadow-sm ring-1 ring-slate-900/5 transition-all hover:shadow-2xl hover:shadow-emerald-900/5 hover:-translate-y-1">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+                    <div className="group relative overflow-hidden rounded-2xl md:rounded-[2rem] bg-white p-4 md:p-6 shadow-sm ring-1 ring-slate-900/5 transition-all hover:shadow-2xl hover:shadow-emerald-900/5 hover:-translate-y-1">
                         <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                             <Users className="w-16 h-16 md:w-24 md:h-24 text-emerald-600 -mr-6 -mt-6" />
                         </div>
-                        <div className="relative z-10 flex flex-col justify-between h-full space-y-3 md:space-y-4">
-                            <div className="p-2 md:p-3 w-fit rounded-2xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300">
-                                <Users className="w-5 h-5 md:w-6 md:h-6" />
+                        <div className="relative z-10 flex flex-col justify-between h-full space-y-2 md:space-y-4">
+                            <div className="p-2 md:p-3 w-fit rounded-xl md:rounded-2xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300">
+                                <Users className="w-4 h-4 md:w-6 md:h-6" />
                             </div>
                             <div>
-                                <h3 className="text-2xl md:text-4xl font-bold text-slate-900 tracking-tight">{totalStudents}</h3>
-                                <p className="text-xs md:text-sm font-medium text-slate-500 mt-1">Total Enrolled</p>
+                                <h3 className="text-xl md:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">{totalStudents}</h3>
+                                <p className="text-[10px] sm:text-xs md:text-sm font-medium text-slate-500 mt-1">Total Enrolled</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="group relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] bg-white p-4 md:p-6 shadow-sm ring-1 ring-slate-900/5 transition-all hover:shadow-2xl hover:shadow-amber-900/5 hover:-translate-y-1">
+                    <div className="group relative overflow-hidden rounded-2xl md:rounded-[2rem] bg-white p-4 md:p-6 shadow-sm ring-1 ring-slate-900/5 transition-all hover:shadow-2xl hover:shadow-amber-900/5 hover:-translate-y-1">
                         <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                             <Clock className="w-16 h-16 md:w-24 md:h-24 text-amber-600 -mr-6 -mt-6" />
                         </div>
-                        <div className="relative z-10 flex flex-col justify-between h-full space-y-3 md:space-y-4">
-                            <div className="p-2 md:p-3 w-fit rounded-2xl bg-amber-50 text-amber-600 group-hover:bg-amber-500 group-hover:text-white transition-colors duration-300">
-                                <Clock className="w-5 h-5 md:w-6 md:h-6" />
+                        <div className="relative z-10 flex flex-col justify-between h-full space-y-2 md:space-y-4">
+                            <div className="p-2 md:p-3 w-fit rounded-xl md:rounded-2xl bg-amber-50 text-amber-600 group-hover:bg-amber-500 group-hover:text-white transition-colors duration-300">
+                                <Clock className="w-4 h-4 md:w-6 md:h-6" />
                             </div>
                             <div>
-                                <h3 className="text-2xl md:text-4xl font-bold text-slate-900 tracking-tight">{pendingReviews}</h3>
-                                <p className="text-xs md:text-sm font-medium text-slate-500 mt-1">Pending Review</p>
+                                <h3 className="text-xl md:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">{pendingReviews}</h3>
+                                <p className="text-[10px] sm:text-xs md:text-sm font-medium text-slate-500 mt-1">Pending Review</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="group relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] bg-white p-4 md:p-6 shadow-sm ring-1 ring-slate-900/5 transition-all hover:shadow-2xl hover:shadow-red-900/5 hover:-translate-y-1">
+                    <div className="group relative overflow-hidden rounded-2xl md:rounded-[2rem] bg-white p-4 md:p-6 shadow-sm ring-1 ring-slate-900/5 transition-all hover:shadow-2xl hover:shadow-red-900/5 hover:-translate-y-1">
                         <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                             <AlertCircle className="w-16 h-16 md:w-24 md:h-24 text-red-600 -mr-6 -mt-6" />
                         </div>
-                        <div className="relative z-10 flex flex-col justify-between h-full space-y-3 md:space-y-4">
-                            <div className="p-2 md:p-3 w-fit rounded-2xl bg-red-50 text-red-600 group-hover:bg-red-500 group-hover:text-white transition-colors duration-300">
-                                <AlertCircle className="w-5 h-5 md:w-6 md:h-6" />
+                        <div className="relative z-10 flex flex-col justify-between h-full space-y-2 md:space-y-4">
+                            <div className="p-2 md:p-3 w-fit rounded-xl md:rounded-2xl bg-red-50 text-red-600 group-hover:bg-red-500 group-hover:text-white transition-colors duration-300">
+                                <AlertCircle className="w-4 h-4 md:w-6 md:h-6" />
                             </div>
                             <div>
-                                <h3 className="text-2xl md:text-4xl font-bold text-slate-900 tracking-tight">{incompleteDocs}</h3>
-                                <p className="text-xs md:text-sm font-medium text-slate-500 mt-1">Action Required</p>
+                                <h3 className="text-xl md:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">{incompleteDocs}</h3>
+                                <p className="text-[10px] sm:text-xs md:text-sm font-medium text-slate-500 mt-1">Action Required</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="group relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] bg-white p-4 md:p-6 shadow-sm ring-1 ring-slate-900/5 transition-all hover:shadow-2xl hover:shadow-blue-900/5 hover:-translate-y-1">
+                    <div className="group relative overflow-hidden rounded-2xl md:rounded-[2rem] bg-white p-4 md:p-6 shadow-sm ring-1 ring-slate-900/5 transition-all hover:shadow-2xl hover:shadow-blue-900/5 hover:-translate-y-1">
                         <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                             <GraduationCap className="w-16 h-16 md:w-24 md:h-24 text-blue-600 -mr-6 -mt-6" />
                         </div>
-                        <div className="relative z-10 flex flex-col justify-between h-full space-y-3 md:space-y-4">
-                            <div className="p-2 md:p-3 w-fit rounded-2xl bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
-                                <GraduationCap className="w-5 h-5 md:w-6 md:h-6" />
+                        <div className="relative z-10 flex flex-col justify-between h-full space-y-2 md:space-y-4">
+                            <div className="p-2 md:p-3 w-fit rounded-xl md:rounded-2xl bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
+                                <GraduationCap className="w-4 h-4 md:w-6 md:h-6" />
                             </div>
                             <div>
-                                <h3 className="text-2xl md:text-4xl font-bold text-slate-900 tracking-tight">{completeDocs}</h3>
-                                <p className="text-xs md:text-sm font-medium text-slate-500 mt-1">Fully Verified</p>
+                                <h3 className="text-xl md:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">{completeDocs}</h3>
+                                <p className="text-[10px] sm:text-xs md:text-sm font-medium text-slate-500 mt-1">Fully Verified</p>
                             </div>
                         </div>
                     </div>
@@ -309,8 +312,8 @@ export default async function CoordinatorDashboard() {
                                                 <TableCell className="text-slate-500 text-sm font-medium py-5">
                                                     {new Date(student.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
                                                 </TableCell>
-                                                <TableCell className="text-right pr-8 py-5">
-                                                    <div className="flex justify-end opacity-80 group-hover:opacity-100 transition-opacity">
+                                                <TableCell className="text-right pr-4 md:pr-8 py-5">
+                                                    <div className="flex justify-end opacity-100 md:opacity-80 md:group-hover:opacity-100 transition-opacity">
                                                         <StudentApprovalActions studentId={student.id} />
                                                     </div>
                                                 </TableCell>

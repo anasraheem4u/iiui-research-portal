@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
+import { getRegistrationData } from "@/app/actions/get_registration_data"
 
 type Program = { id: string, name: string, type: string, department?: string }
 type Batch = { id: string, name: string }
@@ -45,19 +46,16 @@ export default function RegisterPage() {
             setFetchingData(true)
             setError(null)
 
-            const { data: pData, error: pError } = await supabase.from('programs').select('id, name, type, department')
-            const { data: bData, error: bError } = await supabase.from('batches').select('id, name')
-            const { data: cData, error: cError } = await supabase.rpc('get_coordinators')
+            const { programs, batches, coordinators, error: fetchError } = await getRegistrationData()
 
-            if (pError || bError) {
-                console.error("Error fetching registration data:", { pError, bError })
+            if (fetchError) {
+                console.error("Error fetching registration data:", fetchError)
                 setError("Failed to load form data. Please ensure database is setup.")
             } else {
-                if (pData) setPrograms(pData)
-                if (bData) setBatches(bData)
-                if (cData) setCoordinators(cData)
+                setPrograms(programs)
+                setBatches(batches)
+                setCoordinators(coordinators)
             }
-            if (cError) console.warn("Failed to fetch coordinators (RPC possibly missing)", cError)
 
             setFetchingData(false)
         }
@@ -130,7 +128,11 @@ export default function RegisterPage() {
             if (error) { toast.error(error.message); setLoading(false); return }
 
             if (data.user) {
-                toast.success("Account created! Redirecting to login...")
+                // Supabase automatically signs in the user upon signup if email confirmation is disabled.
+                // We must immediately sign them out so they cannot access the dashboard before being approved.
+                await supabase.auth.signOut()
+
+                toast.success("Account created successfully! Your request has been sent to your coordinator for approval.")
                 router.push("/login")
             } else {
                 toast.success("Account created. Check email for confirmation.")
@@ -175,7 +177,7 @@ export default function RegisterPage() {
                         </span>
                     </h2>
                     <p className="text-emerald-100/50 text-sm font-light leading-relaxed max-w-xs">
-                        Create your student profile at IIUI and start managing your research journey.
+                        Create your student profile for the Department of English and start managing your research journey.
                     </p>
                 </div>
 
@@ -258,7 +260,7 @@ export default function RegisterPage() {
                                 <FormField label="Email Address" icon={<Mail className="h-[18px] w-[18px]" />}>
                                     <Input
                                         type="email"
-                                        placeholder="name@iiu.edu.pk"
+                                        placeholder="name@english.edu"
                                         className="pl-11 py-6 bg-transparent border-none shadow-none focus-visible:ring-0 text-sm"
                                         value={email}
                                         onChange={e => setEmail(e.target.value)}
@@ -337,7 +339,7 @@ export default function RegisterPage() {
                                                     )) : (
                                                         <>
                                                             <SelectItem value="Spring">Spring</SelectItem>
-                                                            <SelectItem value="Summer">Summer</SelectItem>
+                                                            <SelectItem value="Fall">Fall</SelectItem>
                                                         </>
                                                     )}
                                                 </SelectContent>

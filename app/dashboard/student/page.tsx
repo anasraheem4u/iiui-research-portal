@@ -39,9 +39,15 @@ export default async function StudentDashboard() {
             id: user.id,
             email: user.email,
             full_name: meta.full_name || user.email?.split('@')[0] || 'Student',
-            role: 'student',
+            role: meta.role || 'student',
+            status: 'pending', // Always start pending — coordinator must approve
+            registration_number: meta.registration_number || null,
+            program_id: meta.program_id || null,
+            batch_id: meta.batch_id || null,
+            department: meta.department || 'English',
+            coordinator_id: meta.coordinator_id || null,
         })
-        const { data: retryProfile } = await supabase.from('users').select(`*, programs ( name, type ), batches ( name )`).eq('id', user.id).single()
+        const { data: retryProfile } = await supabase.from('users').select(`*, programs ( name, type ), batches ( name ), coordinator:coordinator_id ( full_name )`).eq('id', user.id).single()
         profile = retryProfile
     }
 
@@ -52,36 +58,84 @@ export default async function StudentDashboard() {
     const batchName = profile.batches?.name || "N/A"
     const regNo = profile.registration_number || "N/A"
 
-    // Check Account Status
+    // Check Account Status — block access until coordinator approves
     if (profile.status === 'pending') {
+        const coordinatorName = (profile.coordinator as any)?.full_name
         return (
-            <div className="flex-1 flex flex-col items-center justify-center p-8 min-h-[80vh]">
-                <div className="max-w-md text-center space-y-6 bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-                    <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mx-auto ring-8 ring-amber-50/50">
-                        <Clock className="w-10 h-10 text-amber-600" />
+            <div className="flex-1 flex flex-col items-center justify-center p-6 min-h-[80vh] bg-slate-50/50">
+                <div className="max-w-lg w-full text-center space-y-6 bg-white p-8 md:p-10 rounded-3xl shadow-xl shadow-slate-200/50 ring-1 ring-slate-900/5 animate-in fade-in duration-500">
+                    {/* Animated Icon */}
+                    <div className="relative w-24 h-24 mx-auto">
+                        <div className="absolute inset-0 bg-amber-100 rounded-full animate-ping opacity-30" />
+                        <div className="relative w-24 h-24 bg-amber-50 rounded-full flex items-center justify-center ring-8 ring-amber-50/40">
+                            <Clock className="w-11 h-11 text-amber-500" />
+                        </div>
                     </div>
-                    <div>
-                        <h1 className="text-2xl font-bold text-slate-900">Awaiting Approval</h1>
-                        <p className="text-slate-500 mt-2 leading-relaxed">
-                            Your account is currently pending approval from your coordinator.
+
+                    <div className="space-y-2">
+                        <h1 className="text-2xl md:text-3xl font-bold text-slate-900">Account Pending Approval</h1>
+                        <p className="text-slate-500 leading-relaxed">
+                            Your registration is complete. Please wait while your coordinator reviews and approves your account.
                         </p>
                     </div>
+
+                    {/* Info Cards */}
+                    <div className="grid grid-cols-1 gap-3 text-left">
+                        <div className="flex items-center gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                            <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
+                                <CheckCircle className="w-5 h-5 text-emerald-600" />
+                            </div>
+                            <div>
+                                <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">Registered As</p>
+                                <p className="font-semibold text-slate-800">{profile.full_name}</p>
+                                <p className="text-xs text-slate-500">{profile.email}</p>
+                            </div>
+                        </div>
+                        {coordinatorName && (
+                            <div className="flex items-center gap-3 p-4 rounded-2xl bg-amber-50 border border-amber-100">
+                                <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
+                                    <Clock className="w-5 h-5 text-amber-600" />
+                                </div>
+                                <div>
+                                    <p className="text-xs text-amber-600 font-medium uppercase tracking-wide">Awaiting Review By</p>
+                                    <p className="font-semibold text-slate-800">{coordinatorName}</p>
+                                    <p className="text-xs text-slate-500">Department of English Coordinator</p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <p className="text-xs text-slate-400">
+                        You will be able to access your dashboard once your coordinator approves your registration. Please check back later.
+                    </p>
                 </div>
             </div>
         )
     } else if (profile.status === 'rejected') {
         return (
-            <div className="flex-1 flex flex-col items-center justify-center p-8 min-h-[80vh]">
-                <div className="max-w-md text-center space-y-6 bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-                    <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto ring-8 ring-red-50/50">
-                        <AlertCircle className="w-10 h-10 text-red-600" />
+            <div className="flex-1 flex flex-col items-center justify-center p-6 min-h-[80vh] bg-slate-50/50">
+                <div className="max-w-lg w-full text-center space-y-6 bg-white p-8 md:p-10 rounded-3xl shadow-xl shadow-slate-200/50 ring-1 ring-slate-900/5 animate-in fade-in duration-500">
+                    <div className="relative w-24 h-24 mx-auto">
+                        <div className="relative w-24 h-24 bg-red-50 rounded-full flex items-center justify-center ring-8 ring-red-50/40">
+                            <AlertCircle className="w-11 h-11 text-red-500" />
+                        </div>
                     </div>
-                    <div>
-                        <h1 className="text-2xl font-bold text-slate-900">Account Rejected</h1>
-                        <p className="text-slate-500 mt-2 leading-relaxed">
-                            Your account registration has been rejected.
+
+                    <div className="space-y-2">
+                        <h1 className="text-2xl md:text-3xl font-bold text-slate-900">Registration Rejected</h1>
+                        <p className="text-slate-500 leading-relaxed">
+                            Unfortunately, your account registration has been rejected by the coordinator. Please contact your department for further assistance.
                         </p>
                     </div>
+
+                    <div className="p-4 rounded-2xl bg-red-50 border border-red-100 text-left">
+                        <p className="text-xs text-red-600 font-semibold uppercase tracking-wide mb-1">What to do next</p>
+                        <p className="text-sm text-slate-600">Contact the Department of English office with your registration details to resolve this issue.</p>
+                    </div>
+
+                    <a href="/login" className="inline-flex items-center justify-center gap-2 w-full h-11 rounded-2xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-700 transition-colors">
+                        Back to Login
+                    </a>
                 </div>
             </div>
         )
@@ -418,7 +472,7 @@ export default async function StudentDashboard() {
                                         Formatting <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-200">Guidelines</span>
                                     </h3>
                                     <p className="text-sm leading-relaxed text-slate-400 font-light">
-                                        Ensure your thesis follows the latest IIUI academic standards for spacing, citation, and structure.
+                                        Ensure your thesis follows the latest Department of English academic standards for spacing, citation, and structure.
                                     </p>
                                 </div>
                                 <a href="#" className="flex items-center gap-3 text-sm font-bold text-emerald-400 transition-colors hover:text-white group/link">
