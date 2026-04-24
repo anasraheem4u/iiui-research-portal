@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Footer } from "@/components/Footer";
 import {
   ArrowRight, CloudUpload, BarChart3, ShieldCheck,
   Database, Eye, FileText, MapPin, Phone, Mail, ChevronRight, BookOpen, Users, Award, GraduationCap
@@ -15,10 +16,10 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center gap-3">
-              <Image src="/images/IIUI_Logo.png" alt="IIUI Logo" width={40} height={40} className="w-10 h-10 object-contain" />
+              <Image src="/images/IIUI_Logo.png" alt="Department Logo" width={40} height={40} className="w-10 h-10 object-contain" />
               <div>
                 <span className="text-xl font-bold tracking-tight text-emerald-800">RDMS</span>
-                <p className="text-[10px] uppercase tracking-widest font-semibold text-slate-500">IIUI</p>
+                <p className="text-[10px] uppercase tracking-widest font-semibold text-slate-500">English Dept</p>
               </div>
             </div>
             <div className="hidden md:flex items-center space-x-8">
@@ -47,7 +48,7 @@ export default function Home() {
         <div className="absolute inset-0 z-0">
           <img
             src="/images/IIUI.jpeg"
-            alt="IIUI Campus"
+            alt="Department Campus"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-emerald-900/90 via-emerald-800/80 to-slate-900/85" />
@@ -67,12 +68,12 @@ export default function Home() {
             <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight mb-6 animate-fade-in-up stagger-1" style={{ opacity: 0 }}>
               Streamlining Research Excellence at{" "}
               <span className="text-emerald-400">
-                International Islamic University
+                Department of English
               </span>
             </h1>
 
             <p className="text-xl text-white/80 mb-10 leading-relaxed max-w-2xl animate-fade-in-up stagger-2" style={{ opacity: 0 }}>
-              A centralized platform designed specifically for MS and PhD students at IIUI to manage, track, and submit research documentation with seamless coordination and oversight.
+              A centralized platform designed specifically for MS and PhD students at the Department of English to manage, track, and submit research documentation with seamless coordination and oversight.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fade-in-up stagger-3" style={{ opacity: 0 }}>
@@ -124,7 +125,7 @@ export default function Home() {
             <StepCard
               icon={<ShieldCheck className="w-7 h-7" />}
               title="Get Approval"
-              description="Receive formal digital approvals and generate completion reports once your work meets university standards."
+              description="Receive formal digital approvals and generate completion reports once your work meets department standards."
             />
           </div>
         </div>
@@ -152,7 +153,7 @@ export default function Home() {
                 <FeatureItem
                   icon={<FileText className="w-5 h-5 text-emerald-700" />}
                   title="Structured Reporting"
-                  description="Generate formal semester progress reports and university-standard thesis forms with automated data population."
+                  description="Generate formal semester progress reports and department-standard thesis forms with automated data population."
                 />
               </div>
             </div>
@@ -226,11 +227,11 @@ export default function Home() {
             {/* Brand */}
             <div className="col-span-1">
               <div className="flex items-center gap-3 mb-6">
-                <Image src="/images/IIUI_Logo.png" alt="IIUI Logo" width={32} height={32} className="w-8 h-8 object-contain" />
+                <Image src="/images/IIUI_Logo.png" alt="Department Logo" width={32} height={32} className="w-8 h-8 object-contain" />
                 <span className="text-xl font-bold tracking-tight text-emerald-800">RDMS</span>
               </div>
               <p className="text-slate-500 text-sm leading-relaxed">
-                Dedicated to enhancing the research ecosystem at International Islamic University Islamabad through digital innovation and efficient management tools.
+                Dedicated to enhancing the research ecosystem at the Department of English through digital innovation and efficient management tools.
               </p>
             </div>
 
@@ -238,7 +239,7 @@ export default function Home() {
             <div>
               <h5 className="text-sm font-bold uppercase tracking-widest text-slate-900 mb-6">Quick Links</h5>
               <ul className="space-y-4 text-sm text-slate-500">
-                <li><a className="hover:text-emerald-700 transition-colors flex items-center gap-1" href="https://www.iiu.edu.pk" target="_blank" rel="noreferrer"><ChevronRight className="w-3 h-3" />University Website</a></li>
+                <li><a className="hover:text-emerald-700 transition-colors flex items-center gap-1" href="https://www.iiu.edu.pk" target="_blank" rel="noreferrer"><ChevronRight className="w-3 h-3" />Department Website</a></li>
                 <li><a className="hover:text-emerald-700 transition-colors flex items-center gap-1" href="#"><ChevronRight className="w-3 h-3" />Student Handbook</a></li>
                 <li><a className="hover:text-emerald-700 transition-colors flex items-center gap-1" href="#"><ChevronRight className="w-3 h-3" />Research Guidelines</a></li>
                 <li><a className="hover:text-emerald-700 transition-colors flex items-center gap-1" href="#"><ChevronRight className="w-3 h-3" />Faculty Portal</a></li>
@@ -276,20 +277,14 @@ export default function Home() {
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  title="IIUI Location"
+                  title="Department Location"
                 />
               </div>
             </div>
           </div>
 
           <div className="pt-8 border-t border-emerald-50 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-xs text-slate-400">
-              © {new Date().getFullYear()} International Islamic University Islamabad. Research Document Management System. All Rights Reserved.
-            </p>
-            <div className="flex gap-6 text-xs font-medium text-slate-400">
-              <a className="hover:text-emerald-700 transition-colors" href="#">Privacy Policy</a>
-              <a className="hover:text-emerald-700 transition-colors" href="#">Terms of Service</a>
-            </div>
+            <Footer />
           </div>
         </div>
       </footer>

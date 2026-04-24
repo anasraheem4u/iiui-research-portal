@@ -176,7 +176,7 @@ export function DocumentReviewModal({
                     </div>
                 )}
             </DialogTrigger>
-            <DialogContent className="max-w-[1050px] h-[90vh] p-0 overflow-hidden rounded-2xl gap-0" aria-describedby={undefined}>
+            <DialogContent className="w-[95vw] sm:w-[90vw] md:max-w-[1050px] md:h-[90vh] max-h-[90vh] p-0 overflow-hidden rounded-xl sm:rounded-2xl gap-0 flex flex-col" aria-describedby={undefined}>
                 <DialogTitle className="sr-only">Reviewing: {documentTitle}</DialogTitle>
                 {/* Top Header Bar */}
                 <div className="flex items-center justify-between px-5 py-3 border-b bg-slate-50/80">
@@ -188,20 +188,20 @@ export function DocumentReviewModal({
                             <h3 className="text-sm font-bold text-foreground leading-tight">
                                 Reviewing: {documentTitle}
                             </h3>
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
                                 Ver. {version}.0 • Submitted: {formatDateTime(submissionDate)}
                             </p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 shrink-0">
                         {getStatusBadge()}
                     </div>
                 </div>
 
-                {/* Main Body — Two Column Layout */}
-                <div className="flex flex-1 overflow-hidden" style={{ height: 'calc(90vh - 56px)' }}>
+                {/* Main Body — Responsive Layout */}
+                <div className="flex flex-col md:flex-row flex-1 overflow-hidden h-full max-h-[calc(90vh-[header_height])]">
                     {/* LEFT: PDF Viewer */}
-                    <div className="flex-1 flex flex-col bg-gray-100 border-r">
+                    <div className="flex-1 flex flex-col bg-gray-100 border-r md:border-r-0 md:border-b-0 border-b h-[40vh] sm:h-[50vh] md:h-auto min-h-0">
                         {/* PDF Toolbar */}
                         <div className="flex items-center justify-between px-3 py-2 bg-white border-b text-sm">
                             <div className="flex items-center gap-2">
@@ -277,7 +277,7 @@ export function DocumentReviewModal({
                                         <iframe
                                             src={`${signedUrl}#toolbar=0&view=FitH`}
                                             className="w-full bg-white rounded-lg shadow-lg border"
-                                            style={{ height: 'calc(100vh - 200px)', minHeight: '600px', maxWidth: '800px' }}
+                                            style={{ height: 'calc(100% - 16px)', minHeight: '300px', maxWidth: '800px' }}
                                             title={documentTitle}
                                         />
                                     </div>
@@ -311,7 +311,7 @@ export function DocumentReviewModal({
                     </div>
 
                     {/* RIGHT: Sidebar — Submission Details + Actions */}
-                    <div className="w-[300px] flex flex-col bg-white overflow-y-auto">
+                    <div className="w-full md:w-[300px] flex flex-col bg-white overflow-y-auto flex-1 md:flex-none border-t md:border-t-0 md:border-l border-border">
                         {/* Submission Details */}
                         <div className="p-5 border-b">
                             <h4 className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-3">

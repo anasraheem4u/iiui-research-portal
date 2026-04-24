@@ -138,17 +138,20 @@ export function UploadModal({ documentTitle, checklistId, existingDocId, onUploa
                     <Upload className="w-3 h-3" /> {existingDocId ? 'Re-Upload' : 'Upload Now'}
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[480px]">
-                <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2">
-                        <FileUp className="w-5 h-5 text-emerald-600" />
-                        Upload: {documentTitle}
+            <DialogContent className="w-[95vw] sm:w-full sm:max-w-[480px] p-4 sm:p-6 rounded-2xl sm:rounded-xl">
+                <DialogHeader className="text-left">
+                    <DialogTitle className="flex flex-col sm:flex-row sm:items-center gap-2 text-lg">
+                        <div className="flex items-center gap-2">
+                            <FileUp className="w-5 h-5 text-emerald-600 shrink-0" />
+                            <span className="truncate">Upload Document</span>
+                        </div>
+                        <span className="text-sm font-normal text-slate-500 sm:border-l sm:pl-2 truncate block">{documentTitle}</span>
                     </DialogTitle>
                 </DialogHeader>
-                <div className="grid gap-4 py-4">
+                <div className="grid gap-4 py-2 sm:py-4">
                     {/* Upload Zone */}
                     <div
-                        className="border-2 border-dashed border-emerald-200 rounded-xl p-8 text-center hover:border-emerald-400 transition-colors cursor-pointer bg-emerald-50/30"
+                        className="border-2 border-dashed border-emerald-200 rounded-xl p-6 sm:p-8 text-center hover:border-emerald-400 transition-colors cursor-pointer bg-emerald-50/30"
                         onClick={() => document.getElementById('file-input')?.click()}
                     >
                         {file ? (
@@ -187,12 +190,12 @@ export function UploadModal({ documentTitle, checklistId, existingDocId, onUploa
                         </ul>
                     </div>
                 </div>
-                <div className="flex justify-end gap-3">
-                    <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+                <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-4 sm:mt-0">
+                    <Button variant="outline" className="w-full sm:w-auto" onClick={() => setOpen(false)}>Cancel</Button>
                     <Button
                         onClick={handleUpload}
                         disabled={uploading || !file}
-                        className="bg-emerald-600 hover:bg-emerald-700"
+                        className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-500/20"
                     >
                         {uploading ? "Uploading..." : "Submit for Review"}
                     </Button>

@@ -1,6 +1,8 @@
 import { DataTable } from "@/components/ui/data-table"
+import { Footer } from "@/components/Footer"
 import { ExportButton } from "@/components/ExportButton"
 import { columns, Student } from "./columns"
+import { StudentList } from "./StudentList"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { FileDown, Plus, Users, Clock, AlertCircle, FileText, GraduationCap, UserPlus } from "lucide-react"
@@ -32,6 +34,7 @@ async function getData() {
             batches ( name )
         `)
         .eq('role', 'student')
+        .eq('coordinator_id', user.id)
         .order('created_at', { ascending: false })
 
     if (error || !students) return { active: [], pending: [] }
@@ -69,8 +72,10 @@ async function getData() {
     const pathsToSign: { studentId: string, path: string }[] = []
 
     allDocs?.forEach(doc => {
-        if (!docMap.has(doc.student_id)) docMap.set(doc.student_id, new Set())
-        docMap.get(doc.student_id)?.add(doc.checklist_item_id)
+        if (doc.status === 'approved') {
+            if (!docMap.has(doc.student_id)) docMap.set(doc.student_id, new Set())
+            docMap.get(doc.student_id)?.add(doc.checklist_item_id)
+        }
 
         if (doc.status === 'pending' || doc.status === 'under_review') {
             pendingMap.set(doc.student_id, true)
@@ -163,7 +168,7 @@ export default async function CoordinatorDashboard() {
         <div className="flex-1 p-8 overflow-y-auto w-full bg-slate-50/50 min-h-screen">
             <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
                 {/* Dark Header */}
-                <div className="relative overflow-hidden rounded-[2.5rem] bg-slate-900 shadow-2xl ring-1 ring-white/10 p-10 flex flex-col md:flex-row justify-between items-center gap-8 group transition-all hover:shadow-emerald-900/20">
+                <div className="relative overflow-hidden rounded-[2rem] bg-slate-900 shadow-2xl ring-1 ring-white/10 p-6 md:p-8 flex flex-col md:flex-row justify-between items-center gap-6 group transition-all hover:shadow-emerald-900/20">
                     <div className="absolute inset-0 bg-[url('/images/noise.png')] opacity-5 mix-blend-soft-light" />
                     <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-900/40" />
                     <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] -mr-20 -mt-20 pointer-events-none" />
@@ -174,10 +179,10 @@ export default async function CoordinatorDashboard() {
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                             Live Dashboard
                         </div>
-                        <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-2 leading-tight">
+                        <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-2 leading-tight">
                             Coordinator <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-200">control center</span>
                         </h1>
-                        <p className="text-slate-400 text-lg leading-relaxed">
+                        <p className="text-slate-400 text-base leading-relaxed">
                             Monitor student progress, review submissions, and manage program requirements efficiently.
                         </p>
                     </div>
@@ -198,63 +203,63 @@ export default async function CoordinatorDashboard() {
                 </div>
 
                 {/* Stats Grid - Glass Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div className="group relative overflow-hidden rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-slate-900/5 transition-all hover:shadow-2xl hover:shadow-emerald-900/5 hover:-translate-y-1">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+                    <div className="group relative overflow-hidden rounded-2xl md:rounded-[2rem] bg-white p-4 md:p-6 shadow-sm ring-1 ring-slate-900/5 transition-all hover:shadow-2xl hover:shadow-emerald-900/5 hover:-translate-y-1">
                         <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                            <Users className="w-24 h-24 text-emerald-600 -mr-6 -mt-6" />
+                            <Users className="w-16 h-16 md:w-24 md:h-24 text-emerald-600 -mr-6 -mt-6" />
                         </div>
-                        <div className="relative z-10 flex flex-col justify-between h-full space-y-4">
-                            <div className="p-3 w-fit rounded-2xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300">
-                                <Users className="w-6 h-6" />
+                        <div className="relative z-10 flex flex-col justify-between h-full space-y-2 md:space-y-4">
+                            <div className="p-2 md:p-3 w-fit rounded-xl md:rounded-2xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300">
+                                <Users className="w-4 h-4 md:w-6 md:h-6" />
                             </div>
                             <div>
-                                <h3 className="text-4xl font-bold text-slate-900 tracking-tight">{totalStudents}</h3>
-                                <p className="text-sm font-medium text-slate-500 mt-1">Total Enrolled</p>
+                                <h3 className="text-xl md:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">{totalStudents}</h3>
+                                <p className="text-[10px] sm:text-xs md:text-sm font-medium text-slate-500 mt-1">Total Enrolled</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="group relative overflow-hidden rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-slate-900/5 transition-all hover:shadow-2xl hover:shadow-amber-900/5 hover:-translate-y-1">
+                    <div className="group relative overflow-hidden rounded-2xl md:rounded-[2rem] bg-white p-4 md:p-6 shadow-sm ring-1 ring-slate-900/5 transition-all hover:shadow-2xl hover:shadow-amber-900/5 hover:-translate-y-1">
                         <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                            <Clock className="w-24 h-24 text-amber-600 -mr-6 -mt-6" />
+                            <Clock className="w-16 h-16 md:w-24 md:h-24 text-amber-600 -mr-6 -mt-6" />
                         </div>
-                        <div className="relative z-10 flex flex-col justify-between h-full space-y-4">
-                            <div className="p-3 w-fit rounded-2xl bg-amber-50 text-amber-600 group-hover:bg-amber-500 group-hover:text-white transition-colors duration-300">
-                                <Clock className="w-6 h-6" />
+                        <div className="relative z-10 flex flex-col justify-between h-full space-y-2 md:space-y-4">
+                            <div className="p-2 md:p-3 w-fit rounded-xl md:rounded-2xl bg-amber-50 text-amber-600 group-hover:bg-amber-500 group-hover:text-white transition-colors duration-300">
+                                <Clock className="w-4 h-4 md:w-6 md:h-6" />
                             </div>
                             <div>
-                                <h3 className="text-4xl font-bold text-slate-900 tracking-tight">{pendingReviews}</h3>
-                                <p className="text-sm font-medium text-slate-500 mt-1">Pending Review</p>
+                                <h3 className="text-xl md:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">{pendingReviews}</h3>
+                                <p className="text-[10px] sm:text-xs md:text-sm font-medium text-slate-500 mt-1">Pending Review</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="group relative overflow-hidden rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-slate-900/5 transition-all hover:shadow-2xl hover:shadow-red-900/5 hover:-translate-y-1">
+                    <div className="group relative overflow-hidden rounded-2xl md:rounded-[2rem] bg-white p-4 md:p-6 shadow-sm ring-1 ring-slate-900/5 transition-all hover:shadow-2xl hover:shadow-red-900/5 hover:-translate-y-1">
                         <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                            <AlertCircle className="w-24 h-24 text-red-600 -mr-6 -mt-6" />
+                            <AlertCircle className="w-16 h-16 md:w-24 md:h-24 text-red-600 -mr-6 -mt-6" />
                         </div>
-                        <div className="relative z-10 flex flex-col justify-between h-full space-y-4">
-                            <div className="p-3 w-fit rounded-2xl bg-red-50 text-red-600 group-hover:bg-red-500 group-hover:text-white transition-colors duration-300">
-                                <AlertCircle className="w-6 h-6" />
+                        <div className="relative z-10 flex flex-col justify-between h-full space-y-2 md:space-y-4">
+                            <div className="p-2 md:p-3 w-fit rounded-xl md:rounded-2xl bg-red-50 text-red-600 group-hover:bg-red-500 group-hover:text-white transition-colors duration-300">
+                                <AlertCircle className="w-4 h-4 md:w-6 md:h-6" />
                             </div>
                             <div>
-                                <h3 className="text-4xl font-bold text-slate-900 tracking-tight">{incompleteDocs}</h3>
-                                <p className="text-sm font-medium text-slate-500 mt-1">Action Required</p>
+                                <h3 className="text-xl md:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">{incompleteDocs}</h3>
+                                <p className="text-[10px] sm:text-xs md:text-sm font-medium text-slate-500 mt-1">Action Required</p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="group relative overflow-hidden rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-slate-900/5 transition-all hover:shadow-2xl hover:shadow-blue-900/5 hover:-translate-y-1">
+                    <div className="group relative overflow-hidden rounded-2xl md:rounded-[2rem] bg-white p-4 md:p-6 shadow-sm ring-1 ring-slate-900/5 transition-all hover:shadow-2xl hover:shadow-blue-900/5 hover:-translate-y-1">
                         <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                            <GraduationCap className="w-24 h-24 text-blue-600 -mr-6 -mt-6" />
+                            <GraduationCap className="w-16 h-16 md:w-24 md:h-24 text-blue-600 -mr-6 -mt-6" />
                         </div>
-                        <div className="relative z-10 flex flex-col justify-between h-full space-y-4">
-                            <div className="p-3 w-fit rounded-2xl bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
-                                <GraduationCap className="w-6 h-6" />
+                        <div className="relative z-10 flex flex-col justify-between h-full space-y-2 md:space-y-4">
+                            <div className="p-2 md:p-3 w-fit rounded-xl md:rounded-2xl bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
+                                <GraduationCap className="w-4 h-4 md:w-6 md:h-6" />
                             </div>
                             <div>
-                                <h3 className="text-4xl font-bold text-slate-900 tracking-tight">{completeDocs}</h3>
-                                <p className="text-sm font-medium text-slate-500 mt-1">Fully Verified</p>
+                                <h3 className="text-xl md:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">{completeDocs}</h3>
+                                <p className="text-[10px] sm:text-xs md:text-sm font-medium text-slate-500 mt-1">Fully Verified</p>
                             </div>
                         </div>
                     </div>
@@ -307,8 +312,8 @@ export default async function CoordinatorDashboard() {
                                                 <TableCell className="text-slate-500 text-sm font-medium py-5">
                                                     {new Date(student.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
                                                 </TableCell>
-                                                <TableCell className="text-right pr-8 py-5">
-                                                    <div className="flex justify-end opacity-80 group-hover:opacity-100 transition-opacity">
+                                                <TableCell className="text-right pr-4 md:pr-8 py-5">
+                                                    <div className="flex justify-end opacity-100 md:opacity-80 md:group-hover:opacity-100 transition-opacity">
                                                         <StudentApprovalActions studentId={student.id} />
                                                     </div>
                                                 </TableCell>
@@ -330,15 +335,15 @@ export default async function CoordinatorDashboard() {
                     {/* Active Students Table */}
                     <Card className="border-none shadow-xl shadow-slate-200/50 ring-1 ring-slate-900/5 bg-white rounded-[2rem] overflow-hidden">
                         <CardContent className="p-0">
-                            <DataTable
-                                columns={columns}
+                            <StudentList
                                 data={active}
-                                meta={{ currentUserId: user?.id }}
+                                currentUserId={user?.id}
                             />
                         </CardContent>
                     </Card>
                 </div>
             </div>
+            <Footer />
         </div>
     )
 }

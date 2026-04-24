@@ -9,8 +9,8 @@ const lexend = Lexend({
 });
 
 export const metadata: Metadata = {
-  title: "RDMS | International Islamic University Islamabad",
-  description: "Research Document Management System for International Islamic University Islamabad (IIUI)",
+  title: "RDMS | Department of English",
+  description: "Research Document Management System for the Department of English",
   icons: {
     icon: "/images/IIUI_Logo.png",
   },

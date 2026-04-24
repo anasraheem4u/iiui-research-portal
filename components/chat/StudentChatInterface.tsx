@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { ChatWindow, Message } from './ChatWindow'
-import { Search, User, Settings, Phone, Video, MoreHorizontal } from 'lucide-react'
+import { Search, User, Settings, MoreHorizontal } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -132,11 +132,18 @@ export function StudentChatInterface({ currentUserId, initialCoordinator }: {
                     <>
                         {/* Header */}
                         <div className="h-20 px-6 border-b border-slate-50 flex items-center justify-between">
-                            <div>
-                                <h1 className="text-lg font-bold text-slate-900">Contact Research Coordinator</h1>
-                                <div className="flex items-center gap-2 mt-0.5">
-                                    <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                                    <p className="text-xs text-slate-500">Active Support Channel • MS/PhD Inquiries</p>
+                            <div className="flex items-center gap-3">
+                                {coordinator && (
+                                    <div className="md:hidden w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">
+                                        {coordinator.full_name[0]}
+                                    </div>
+                                )}
+                                <div>
+                                    <h1 className="text-lg font-bold text-slate-900 line-clamp-1">{coordinator.full_name}</h1>
+                                    <div className="flex items-center gap-2 mt-0.5">
+                                        <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse shrink-0"></span>
+                                        <p className="text-xs text-slate-500 line-clamp-1">Research Coordinator</p>
+                                    </div>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">

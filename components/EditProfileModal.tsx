@@ -63,7 +63,7 @@ export function EditProfileModal({ user }: EditProfileModalProps) {
                     <Pencil className="w-4 h-4" /> Edit Profile
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="w-[95vw] sm:max-w-[425px] rounded-xl sm:rounded-lg">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <User className="w-5 h-5 text-emerald-600" />

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Card } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Footer } from '@/components/Footer'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
@@ -38,9 +39,15 @@ export default async function StudentDashboard() {
             id: user.id,
             email: user.email,
             full_name: meta.full_name || user.email?.split('@')[0] || 'Student',
-            role: 'student',
+            role: meta.role || 'student',
+            status: 'pending', // Always start pending — coordinator must approve
+            registration_number: meta.registration_number || null,
+            program_id: meta.program_id || null,
+            batch_id: meta.batch_id || null,
+            department: meta.department || 'English',
+            coordinator_id: meta.coordinator_id || null,
         })
-        const { data: retryProfile } = await supabase.from('users').select(`*, programs ( name, type ), batches ( name )`).eq('id', user.id).single()
+        const { data: retryProfile } = await supabase.from('users').select(`*, programs ( name, type ), batches ( name ), coordinator:coordinator_id ( full_name )`).eq('id', user.id).single()
         profile = retryProfile
     }
 
@@ -51,36 +58,84 @@ export default async function StudentDashboard() {
     const batchName = profile.batches?.name || "N/A"
     const regNo = profile.registration_number || "N/A"
 
-    // Check Account Status
+    // Check Account Status — block access until coordinator approves
     if (profile.status === 'pending') {
+        const coordinatorName = (profile.coordinator as any)?.full_name
         return (
-            <div className="flex-1 flex flex-col items-center justify-center p-8 min-h-[80vh]">
-                <div className="max-w-md text-center space-y-6 bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-                    <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mx-auto ring-8 ring-amber-50/50">
-                        <Clock className="w-10 h-10 text-amber-600" />
+            <div className="flex-1 flex flex-col items-center justify-center p-6 min-h-[80vh] bg-slate-50/50">
+                <div className="max-w-lg w-full text-center space-y-6 bg-white p-8 md:p-10 rounded-3xl shadow-xl shadow-slate-200/50 ring-1 ring-slate-900/5 animate-in fade-in duration-500">
+                    {/* Animated Icon */}
+                    <div className="relative w-24 h-24 mx-auto">
+                        <div className="absolute inset-0 bg-amber-100 rounded-full animate-ping opacity-30" />
+                        <div className="relative w-24 h-24 bg-amber-50 rounded-full flex items-center justify-center ring-8 ring-amber-50/40">
+                            <Clock className="w-11 h-11 text-amber-500" />
+                        </div>
                     </div>
-                    <div>
-                        <h1 className="text-2xl font-bold text-slate-900">Awaiting Approval</h1>
-                        <p className="text-slate-500 mt-2 leading-relaxed">
-                            Your account is currently pending approval from your coordinator.
+
+                    <div className="space-y-2">
+                        <h1 className="text-2xl md:text-3xl font-bold text-slate-900">Account Pending Approval</h1>
+                        <p className="text-slate-500 leading-relaxed">
+                            Your registration is complete. Please wait while your coordinator reviews and approves your account.
                         </p>
                     </div>
+
+                    {/* Info Cards */}
+                    <div className="grid grid-cols-1 gap-3 text-left">
+                        <div className="flex items-center gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                            <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
+                                <CheckCircle className="w-5 h-5 text-emerald-600" />
+                            </div>
+                            <div>
+                                <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">Registered As</p>
+                                <p className="font-semibold text-slate-800">{profile.full_name}</p>
+                                <p className="text-xs text-slate-500">{profile.email}</p>
+                            </div>
+                        </div>
+                        {coordinatorName && (
+                            <div className="flex items-center gap-3 p-4 rounded-2xl bg-amber-50 border border-amber-100">
+                                <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
+                                    <Clock className="w-5 h-5 text-amber-600" />
+                                </div>
+                                <div>
+                                    <p className="text-xs text-amber-600 font-medium uppercase tracking-wide">Awaiting Review By</p>
+                                    <p className="font-semibold text-slate-800">{coordinatorName}</p>
+                                    <p className="text-xs text-slate-500">Department of English Coordinator</p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <p className="text-xs text-slate-400">
+                        You will be able to access your dashboard once your coordinator approves your registration. Please check back later.
+                    </p>
                 </div>
             </div>
         )
     } else if (profile.status === 'rejected') {
         return (
-            <div className="flex-1 flex flex-col items-center justify-center p-8 min-h-[80vh]">
-                <div className="max-w-md text-center space-y-6 bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-                    <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto ring-8 ring-red-50/50">
-                        <AlertCircle className="w-10 h-10 text-red-600" />
+            <div className="flex-1 flex flex-col items-center justify-center p-6 min-h-[80vh] bg-slate-50/50">
+                <div className="max-w-lg w-full text-center space-y-6 bg-white p-8 md:p-10 rounded-3xl shadow-xl shadow-slate-200/50 ring-1 ring-slate-900/5 animate-in fade-in duration-500">
+                    <div className="relative w-24 h-24 mx-auto">
+                        <div className="relative w-24 h-24 bg-red-50 rounded-full flex items-center justify-center ring-8 ring-red-50/40">
+                            <AlertCircle className="w-11 h-11 text-red-500" />
+                        </div>
                     </div>
-                    <div>
-                        <h1 className="text-2xl font-bold text-slate-900">Account Rejected</h1>
-                        <p className="text-slate-500 mt-2 leading-relaxed">
-                            Your account registration has been rejected.
+
+                    <div className="space-y-2">
+                        <h1 className="text-2xl md:text-3xl font-bold text-slate-900">Registration Rejected</h1>
+                        <p className="text-slate-500 leading-relaxed">
+                            Unfortunately, your account registration has been rejected by the coordinator. Please contact your department for further assistance.
                         </p>
                     </div>
+
+                    <div className="p-4 rounded-2xl bg-red-50 border border-red-100 text-left">
+                        <p className="text-xs text-red-600 font-semibold uppercase tracking-wide mb-1">What to do next</p>
+                        <p className="text-sm text-slate-600">Contact the Department of English office with your registration details to resolve this issue.</p>
+                    </div>
+
+                    <a href="/login" className="inline-flex items-center justify-center gap-2 w-full h-11 rounded-2xl bg-slate-900 text-white text-sm font-semibold hover:bg-slate-700 transition-colors">
+                        Back to Login
+                    </a>
                 </div>
             </div>
         )
@@ -149,11 +204,11 @@ export default async function StudentDashboard() {
     }
 
     return (
-        <div className="flex-1 p-8 overflow-y-auto bg-slate-50/50 min-h-screen">
+        <div className="flex-1 p-4 md:p-8 overflow-y-auto bg-slate-50/50 min-h-screen">
             <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
 
                 {/* Header Section */}
-                <div className="relative overflow-hidden rounded-[2.5rem] bg-slate-900 shadow-2xl ring-1 ring-white/10 p-10 md:p-12 mb-10 group">
+                <div className="relative overflow-hidden rounded-[2rem] md:rounded-[2.5rem] bg-slate-900 shadow-2xl ring-1 ring-white/10 p-6 md:p-12 mb-6 md:mb-10 group">
                     <div className="absolute top-0 right-0 -mt-16 -mr-16 h-64 w-64 rounded-full bg-emerald-500/20 blur-3xl transition-transform duration-1000 group-hover:scale-110"></div>
                     <div className="absolute bottom-0 left-0 -mb-16 -ml-16 h-64 w-64 rounded-full bg-blue-500/20 blur-3xl"></div>
 
@@ -248,6 +303,18 @@ export default async function StudentDashboard() {
                             </div>
                         </div>
                     </div>
+
+                    {/* Mobile Stats (Grid) */}
+                    <div className="xl:hidden grid grid-cols-2 gap-4 mt-8 w-full">
+                        <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 flex flex-col items-center justify-center text-center">
+                            <span className="text-xs text-slate-300 uppercase tracking-widest font-bold mb-1">Overall Progress</span>
+                            <span className="text-3xl font-bold text-white">{progress}%</span>
+                        </div>
+                        <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 flex flex-col items-center justify-center text-center">
+                            <span className="text-xs text-slate-300 uppercase tracking-widest font-bold mb-1">Approved</span>
+                            <span className="text-3xl font-bold text-emerald-400">{approved} <span className="text-lg text-slate-400 font-normal">/ {totalItems}</span></span>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Dashboard Grid */}
@@ -270,7 +337,45 @@ export default async function StudentDashboard() {
                                 </div>
                             </div>
 
-                            <Card className="border-t-4 border-t-emerald-500 shadow-lg shadow-slate-200/50 rounded-2xl overflow-hidden ring-1 ring-slate-900/5">
+                            {/* Mobile Card View */}
+                            <div className="md:hidden space-y-4">
+                                {mergedDocs.map((doc, idx) => (
+                                    <Card key={idx} className={cn("p-5 rounded-2xl border border-slate-200/60 shadow-sm", doc.status === 'rejected' && "bg-red-50/30 border-red-100")}>
+                                        <div className="flex justify-between items-start mb-4">
+                                            <div className="flex items-center gap-3">
+                                                {getStatusIcon(doc.status)}
+                                                <div>
+                                                    <h3 className={cn("font-bold text-base text-slate-900 leading-tight", doc.status === 'approved' && "text-slate-800")}>{doc.title}</h3>
+                                                    <p className="text-xs text-slate-500 mt-1 line-clamp-1">{doc.description}</p>
+                                                </div>
+                                            </div>
+                                            {doc.status === 'approved' && <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-200 border-none px-2 py-0.5 text-[10px]">Approved</Badge>}
+                                            {doc.status === 'rejected' && <Badge className="bg-red-100 text-red-800 hover:bg-red-200 border-none px-2 py-0.5 text-[10px]">Rejected</Badge>}
+                                            {doc.status === 'pending' && <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-200 border-none px-2 py-0.5 text-[10px]">In Review</Badge>}
+                                            {doc.status === 'missing' && <Badge variant="outline" className="text-slate-400 border-slate-200 px-2 py-0.5 text-[10px]">Missing</Badge>}
+                                        </div>
+
+                                        <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                                            <span className="text-xs text-slate-400 font-mono">{doc.date !== '--' ? doc.date : 'Not submitted'}</span>
+
+                                            {doc.status === 'missing' ? (
+                                                <UploadModal documentTitle={doc.title} checklistId={doc.checklistId} />
+                                            ) : doc.status === 'rejected' ? (
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[10px] text-red-600 font-bold bg-red-50 px-2 py-1 rounded-lg border border-red-100 max-w-[100px] truncate">
+                                                        {doc.remark || 'Fix Required'}
+                                                    </span>
+                                                    <UploadModal documentTitle={doc.title} checklistId={doc.checklistId} existingDocId={doc.docId} />
+                                                </div>
+                                            ) : (
+                                                <span className="text-xs font-bold text-slate-400 italic">View Only</span>
+                                            )}
+                                        </div>
+                                    </Card>
+                                ))}
+                            </div>
+
+                            <Card className="hidden md:block border-t-4 border-t-emerald-500 shadow-lg shadow-slate-200/50 rounded-2xl overflow-hidden ring-1 ring-slate-900/5">
                                 <div className="overflow-x-auto">
                                     <Table className="min-w-[700px] lg:min-w-0">
                                         <TableHeader>
@@ -367,7 +472,7 @@ export default async function StudentDashboard() {
                                         Formatting <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-200">Guidelines</span>
                                     </h3>
                                     <p className="text-sm leading-relaxed text-slate-400 font-light">
-                                        Ensure your thesis follows the latest IIUI academic standards for spacing, citation, and structure.
+                                        Ensure your thesis follows the latest Department of English academic standards for spacing, citation, and structure.
                                     </p>
                                 </div>
                                 <a href="#" className="flex items-center gap-3 text-sm font-bold text-emerald-400 transition-colors hover:text-white group/link">
@@ -408,6 +513,7 @@ export default async function StudentDashboard() {
                     </div>
                 </div>
             </div>
+            <Footer />
         </div>
     )
 }

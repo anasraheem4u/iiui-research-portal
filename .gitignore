@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local test scripts & logs
+test_validation.mjs
+check_pending.mjs
+add_coordinator_safe.mjs
+dev_error.log
